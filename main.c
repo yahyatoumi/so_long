@@ -4,6 +4,8 @@
 #include <math.h>
 #include "get_next_line.h"
 
+// cc -I /usr/local/include main.c -L /usr/local/lib -lmlx -framework OpenGL -framework AppKit get*.c
+
 static int count_words(char const *str, char c)
 {
 	int i;
