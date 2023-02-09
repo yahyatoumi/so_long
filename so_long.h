@@ -12,8 +12,34 @@ typedef struct s_data
 
 typedef struct s_vars
 {
-	void *mlx;
-	void *win;
+	void *mlx_ptr;
+	void *win_ptr;
+	void *wall_img;
+	int wall_width;
+	int wall_height;
+	void *img;
+	int img_width;
+	int img_height;
+	void *empty_img;
+	int empty_width;
+	int empty_height;
+	void *c_img;
+	int c_width;
+	int c_height;
+	void *e_img;
+	int e_width;
+	int e_height;
+	int playerX;
+	int playerY;
+	int row;
+	int col;
+	int row_len;
+	int cols_len;
+	int i;
+	char **matrice;
+	char **matrice2;
+	int c_char;
+	int e_char;
 } t_vars;
 
 typedef struct s_pars

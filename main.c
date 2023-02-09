@@ -4,8 +4,6 @@
 #include <math.h>
 #include "get_next_line.h"
 
-// cc -I /usr/local/include main.c -L /usr/local/lib -lmlx -framework OpenGL -framework AppKit get*.c
-
 static int count_words(char const *str, char c)
 {
 	int i;
@@ -69,10 +67,7 @@ void ft_split2(char **strings, char const *s, char c, int leak)
 			strings[i] = ft_word(s, c);
 			if (!strings[i])
 			{
-				while (i >= 0)
-					free(strings[i--]);
-				leak = 1;
-				free(strings);
+				// leaks
 				return;
 			}
 			i++;
@@ -116,12 +111,6 @@ int encode_rgb(unsigned char red, unsigned char green, unsigned char blue)
 	return (red << 16 | green << 8 | blue);
 }
 
-int key_hook(int keycode, t_vars *vars)
-{
-	printf("key code == %i\n", keycode);
-	return (0);
-}
-
 int mouse_move_callback(int x, int y, void *param)
 {
 	printf("Mouse moved to: (%d, %d)\n", x, y);
@@ -135,9 +124,9 @@ int mouse_press_callback(int button, int x, int y, void *param)
 	return 0;
 }
 
-void	free_arr(char **arr)
+void free_arr(char **arr)
 {
-	int	i;
+	int i;
 
 	i = 0;
 	while (arr[i])
@@ -196,7 +185,6 @@ int check_last_line(t_pars *list, char *line)
 		}
 		i++;
 	}
-	free(line);
 	return (1);
 }
 
@@ -282,18 +270,21 @@ int no_c_left(char **matrice)
 	return (1);
 }
 
-char **copy_matrice(t_matrice m)
+char **copy_matrice(t_vars m)
 {
 	int i;
 	char **copy;
 
 	copy = (char **)malloc(sizeof(m.row_len + 1));
+	if (!copy)
+		return (0);
 	i = 0;
-	while (m.row_len > 0)
+	while (i < m.row_len)
 	{
-		copy[i] = ft_strdup(m.matrice[i]);
+		copy[i] = strdup(m.matrice[i]);
+		if (!copy[i])
+			return (0);
 		i++;
-		m.row_len--;
 	}
 	copy[i] = 0;
 	return (copy);
@@ -312,7 +303,7 @@ void print_matrice(char **arr)
 	printf("--------------------------------------\n");
 }
 
-int find_exit(int _row, int _col, t_matrice *m, int *i)
+int find_exit(int _row, int _col, t_vars *m, int *i)
 {
 	if (_row < 0 || _row > m->row_len || _col < 0 || _col > m->cols_len || m->matrice[_row][_col] == '1')
 		return 0;
@@ -334,7 +325,7 @@ int find_exit(int _row, int _col, t_matrice *m, int *i)
 	return 0;
 }
 
-void chars_count(t_matrice *m)
+void chars_count(t_vars *m)
 {
 	int i;
 	int j;
@@ -357,59 +348,186 @@ void chars_count(t_matrice *m)
 	}
 }
 
+int key_hook(int keycode, t_vars *vars)
+{
+	if (keycode == 0 && vars->matrice[vars->playerY][vars->playerX - 1] != '1')
+	{
+		if (vars->matrice[vars->playerY][vars->playerX - 1] == 'C')
+		{
+			vars->matrice[vars->playerY][vars->playerX + 1] = 0;
+			vars->c_char -= 1;
+		}
+		mlx_put_image_to_window(vars->mlx_ptr, vars->win_ptr, vars->empty_img, vars->playerX * 50, vars->playerY * 50);
+		vars->playerX -= 1;
+	}
+	else if (keycode == 2 && vars->matrice[vars->playerY][vars->playerX + 1] != '1')
+	{
+		if (vars->matrice[vars->playerY][vars->playerX + 1] == 'C')
+		{
+			vars->matrice[vars->playerY][vars->playerX + 1] = 0;
+			vars->c_char -= 1;
+		}
+		mlx_put_image_to_window(vars->mlx_ptr, vars->win_ptr, vars->empty_img, vars->playerX * 50, vars->playerY * 50);
+		vars->playerX += 1;
+	}
+	else if (keycode == 13 && vars->matrice[vars->playerY - 1][vars->playerX] != '1')
+	{
+		if (vars->matrice[vars->playerY - 1][vars->playerX] == 'C')
+		{
+			vars->matrice[vars->playerY][vars->playerX + 1] = 0;
+			vars->c_char -= 1;
+		}
+		mlx_put_image_to_window(vars->mlx_ptr, vars->win_ptr, vars->empty_img, vars->playerX * 50, vars->playerY * 50);
+		vars->playerY -= 1;
+	}
+	else if (keycode == 1 && vars->matrice[vars->playerY + 1][vars->playerX] != '1')
+	{
+		if (vars->matrice[vars->playerY + 1][vars->playerX] == 'C')
+		{
+			vars->matrice[vars->playerY][vars->playerX + 1] = 0;
+			vars->c_char -= 1;
+		}
+		mlx_put_image_to_window(vars->mlx_ptr, vars->win_ptr, vars->empty_img, vars->playerX * 50, vars->playerY * 50);
+		vars->playerY += 1;
+	}
+	int img_width;
+	int img_height;
+	mlx_put_image_to_window(vars->mlx_ptr, vars->win_ptr, vars->img, vars->playerX * 50, vars->playerY * 50);
+	printf("c_chars == %i\n", vars->c_char);
+	printf("key code == %i\n", keycode);
+	return (0);
+}
+
 int main(void)
 {
-	// t_vars vars;
-	// t_data data;
-
-	t_matrice m;
+	t_vars vars;
 	int i;
-	char **copy;
 
-	if (!(m.matrice = check_map("map.ber")))
+	if (!(vars.matrice = check_map("map.ber")))
 	{
-		write(2, "Error\n", 6);
+		write(2, "Error1\n", 7);
 		return (0);
 	}
-	m.row_len = 0;
-	while (m.matrice[m.row_len])
-		m.row_len++;
-	m.row = 0;
-	m.cols_len = ft_strlen(m.matrice[0]);
-	chars_count(&m);
-	copy = copy_matrice(m);
-	while (m.row < m.row_len)
+	vars.row_len = 0;
+	while (vars.matrice[vars.row_len])
+		vars.row_len++;
+	vars.row = 0;
+	vars.cols_len = ft_strlen(vars.matrice[0]);
+	if (!vars.cols_len)
 	{
-		m.col = 0;
-		while (m.col < m.cols_len)
+		printf("!strlen \n");
+		print_matrice(vars.matrice);
+		exit(1);
+	}
+	chars_count(&vars);
+	vars.matrice2 = copy_matrice(vars);
+	if (!vars.matrice2)
+	{
+		printf("heeere\n");
+		exit(1);
+	}
+	while (vars.row < vars.row_len)
+	{
+		vars.col = 0;
+		while (vars.col < vars.cols_len)
 		{
-			if (m.matrice[m.row][m.col] == 'P')
+			if (vars.matrice[vars.row][vars.col] == 'P')
 			{
 				i = 0;
-				if (!find_exit(m.row, m.col, &m, &i))
+				if (!find_exit(vars.row, vars.col, &vars, &i))
 				{
-					write(2, "ERROR\n", 6);
+					write(2, "ERROR2\n", 7);
 					return (0);
 				}
-				m.row = -1;
+				vars.row = -1;
 				break;
 			}
-			m.col++;
-			if (m.row == -1)
+			vars.col++;
+			if (vars.row == -1)
 				break;
 		}
-		m.row++;
+		vars.row++;
 	}
-	m.matrice = copy;
 	printf("can exit\n");
-	// vars.mlx = mlx_init();
-	// vars.win = mlx_new_window(vars.mlx, 1920, 1080, "so_long");
-	// data.img = mlx_new_image(vars.mlx, 1920, 1080);
-	// data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length,
-	// 							  &data.endian);
-	// my_mlx_pixel_put(&data, 5, 5, encode_rgb(255, 0, 0));
-	// mlx_put_image_to_window(vars.mlx, vars.win, data.img, 0, 0);
-	// mlx_hook(vars.win, 4, 0, mouse_press_callback, NULL);
-	// mlx_loop(vars.mlx);
+	printf("%i\n", vars.cols_len);
+	printf("%i\n", vars.row_len);
+	printf("matrie ----- \n\n\n\n");
+	if ((vars.cols_len + 1) * 50 > 2500 || (vars.row_len + 1) * 50 > 1400)
+	{
+		write(2, "ERROR3\n", 7);
+		return (0);
+	}
+	printf("ccccccccccccccccccccc\n");
+	vars.mlx_ptr = mlx_init();
+	if (!vars.mlx_ptr)
+	{
+		printf("!!!init\n");
+		exit(1);
+	}
+	vars.win_ptr = mlx_new_window(vars.mlx_ptr, vars.cols_len * 50, vars.row_len * 50, "My Game");
+	if (!vars.win_ptr)
+	{
+		printf("!!!winnn\n");
+		exit(1);
+	}
+	vars.img = mlx_xpm_file_to_image(vars.mlx_ptr, "./guko.xpm", &vars.img_width, &vars.img_height);
+	vars.empty_img = mlx_xpm_file_to_image(vars.mlx_ptr, "./empty.xpm", &vars.empty_width, &vars.empty_height);
+	vars.c_img = mlx_xpm_file_to_image(vars.mlx_ptr, "./ball.xpm", &vars.c_width, &vars.c_height);
+	vars.e_img = mlx_xpm_file_to_image(vars.mlx_ptr, "./exit.xpm", &vars.e_width, &vars.e_height);
+	vars.wall_img = mlx_xpm_file_to_image(vars.mlx_ptr, "./wall.xpm", &vars.wall_width, &vars.wall_height);
+	if (!vars.img || !vars.empty_img || !vars.c_img || !vars.e_img || !vars.wall_img)
+	{
+		printf("erooooooor\n");
+		exit(1);
+	}
+	i = 0;
+	int j;
+	printf("matrice ---- j == %i, i == %i\n", vars.cols_len, vars.row_len);
+	while (i < vars.row_len)
+	{
+		j = 0;
+		while (j < vars.cols_len)
+		{
+			if (!vars.matrice2)
+			{
+				printf("hohohoho\n");
+				exit(1);
+			}
+			if (vars.matrice2[i][j] == '1')
+			{
+				printf("1");
+				mlx_put_image_to_window(vars.mlx_ptr, vars.win_ptr, vars.wall_img, j * 50, i * 50);
+			}
+			else if (vars.matrice2[i][j] == 'P')
+			{
+				printf("p");
+				vars.playerX = j;
+				vars.playerY = i;
+				mlx_put_image_to_window(vars.mlx_ptr, vars.win_ptr, vars.img, j * 50, i * 50);
+			}
+			else if (vars.matrice2[i][j] == 'C')
+			{
+				printf("c");
+				mlx_put_image_to_window(vars.mlx_ptr, vars.win_ptr, vars.c_img, j * 50, i * 50);
+			}
+			else if (vars.matrice2[i][j] == 'E')
+			{
+				printf("e");
+				mlx_put_image_to_window(vars.mlx_ptr, vars.win_ptr, vars.e_img, j * 50, i * 50);
+			}
+			else if (vars.matrice2[i][j] == '0')
+			{
+				printf("0");
+			}
+			j++;
+		}
+		printf("i == %i , j == %i\n", i, j);
+		printf("\n");
+		i++;
+	}
+	printf("ccccccccccccccccccccc\n");
+	printf("%i, %i\n", vars.playerX, vars.playerY);
+	mlx_key_hook(vars.win_ptr, key_hook, &vars);
+	mlx_loop(vars.mlx_ptr);
 	return 0;
 }

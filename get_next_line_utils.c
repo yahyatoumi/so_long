@@ -6,7 +6,7 @@
 /*   By: ytoumi <ytoumi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 21:12:22 by ytoumi            #+#    #+#             */
-/*   Updated: 2023/01/06 21:56:28 by ytoumi           ###   ########.fr       */
+/*   Updated: 2023/02/09 16:56:25 by ytoumi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ size_t	ft_strlen(const char *str)
 {
 	size_t	i;
 
+	if (!str)
+		return (0);
 	i = 0;
 	while (str[i])
 		i++;
