@@ -51,6 +51,9 @@ typedef struct s_pars
 	int number_of_lines;
 	char *line;
 	int fd;
+	char *map;
+	int i;
+	char **matrice;
 } t_pars;
 
 typedef struct s_matrice
@@ -64,5 +67,30 @@ typedef struct s_matrice
 	int c_char;
 	int e_char;
 } t_matrice;
+
+
+char	**ft_split(char const *s, char c);
+void free_arr(char **arr);
+int set_parsing_struct(t_pars *pars);
+void set_initial_values(t_pars *list);
+int check_last_line(t_pars *list, char *line);
+int lines_counter(char *path);
+int is_map_valid(t_pars list);
+char **check_map(char *path);
+int no_c_left(char **matrice);
+void print_matrice(char **arr);
+char **copy_matrice(t_vars m);
+int find_exit(int _row, int _col, t_vars *m, int *i);
+void chars_count(t_vars *m);
+int char_check(char c, int c_char);
+int key_hook(int keycode, t_vars *vars);
+int close_window(void *param);
+int ft_strcmp(char *s1, char *s2);
+int ft_check_ber(char *path);
+void ft_helper(char c, t_vars *vars, int x, int y);
+int mlx_helper4(t_vars vars, int i, int j);
+int mlx_helper3(t_vars vars);
+int mlx_helper2(t_vars vars);
+int mlx_helper(t_vars vars);
 
 #endif
