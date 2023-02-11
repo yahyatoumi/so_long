@@ -6,10 +6,11 @@
 /*   By: ytoumi <ytoumi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 23:10:39 by ytoumi            #+#    #+#             */
-/*   Updated: 2023/02/10 17:12:25 by ytoumi           ###   ########.fr       */
+/*   Updated: 2023/02/11 16:42:51 by ytoumi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "so_long.h"
 #include <stdlib.h>
 
 static	int	count_words(char const *str, char c)
@@ -89,7 +90,7 @@ void	ft_split2(char **strings, char const *s, char c, int leak)
 	}
 }
 
-char	**ft_split(char const *s, char c)
+char	**ft_split(char const *s, char c, t_pars pars)
 {
 	int		i;
 	char	**strings;
@@ -106,5 +107,6 @@ char	**ft_split(char const *s, char c)
 	if (leak)
 		return (0);
 	strings[count_words(s, c)] = 0;
+	double_free(pars.map, pars.line);
 	return (strings);
 }

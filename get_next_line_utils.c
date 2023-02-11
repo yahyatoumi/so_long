@@ -6,7 +6,7 @@
 /*   By: ytoumi <ytoumi@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/03 21:12:22 by ytoumi            #+#    #+#             */
-/*   Updated: 2023/02/09 16:56:25 by ytoumi           ###   ########.fr       */
+/*   Updated: 2023/02/11 16:34:51 by ytoumi           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,12 @@ size_t	ft_strlen(const char *str)
 	while (str[i])
 		i++;
 	return (i);
+}
+
+void	double_free(char *s1, char *s2)
+{
+	free(s1);
+	free(s2);
 }
 
 char	*ft_strjoin(char *s1, char *s2)
